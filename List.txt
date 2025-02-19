@@ -1,0 +1,37 @@
+List of items I had to do to make everything work.
+
+- Made a .env using .env.example with my connections and configurations
+
+- made entrypoint.sh file and added and ran through compose.yml for database
+  migrations to initialize the database schema changed the Dockerfile and set
+  this as ENTRYPOINT 
+
+- added the pytest dependency in requirement.txt as it was missing
+
+- Made an account on ethereal to send and receive emails and added the 
+  credential in .env.example and .env file
+
+- Used GitHub secrets to add the credentials in the GitHub environment
+
+- I made the nightlyBuild.yml file that either triggers at a specified time or 
+  on a manual run from GitHub actions and sends a failure or success email on 
+  the respective event that occurred. 
+
+- I made a Conventional Commits workflow have commit message standards for the 
+  main branch and pull requests to the main branch. This commit_conventional.yml
+  file will verify commit messages using webiny/action-conventional-commits@v1.3.0, 
+  label invalid PRs, and it will send an email on failure, and automatically closes
+  PRs with incorrect commit messages.
+
+- dealt with errors of pytest dependency missing
+
+- GitHub works on UTC so adjusted the the time to Pacific Standard Time zone 
+
+- The Docker Credentials access token was read-only and initially gave an error to
+  push images to Docker Hub, dealt with it by changing it to read write, and delete
+
+- The push to main will allow the push even if the test fails later after the push as
+  GitHub Actions runs after the push is made so the build will fail but the push will be succesfull.
+  not same for the PR to main it will not merge untill the build passes.
+
+
