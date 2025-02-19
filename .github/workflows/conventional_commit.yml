@@ -1,0 +1,79 @@
+name: Conventional Commits
+
+on:
+    push:
+      branches:
+        - main  
+    pull_request:
+      branches:
+        - main 
+  
+jobs:
+  build:
+    name: Conventional Commits
+    runs-on: ubuntu-latest
+    environment: production secrets
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Get Commit Messages
+        run: |
+          echo "Fetching commit messages..."
+          commits=$(git log --format=%s -n 10)
+          echo "Recent Commit Messages:"
+          echo "$commits"
+
+      - name: Check Commit Messages with action
+        uses: webiny/action-conventional-commits@v1.3.0
+
+      - name: Suggest Fixes for Invalid Commits
+        if: failure()
+        run: |
+          echo "⚠️ Some commit messages are invalid."
+          echo "Example of a correct commit message: 'feat(auth): add JWT authentication support'"
+
+      - name: Send failure notification if invalid commit messages
+        if: failure()
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port: ${{ secrets.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "The PR #${{ github.event.pull_request.number }}: Commit message has format issue"
+          to: sshaikh7@dons.usfca.edu
+          from: "${{ secrets.MAIL_FROM_NAME }} <${{ secrets.MAIL_FROM }}>"
+          body: |
+            Hey ${{ github.event.pull_request.user.login }},
+
+            The pull request Number #${{ github.event.pull_request.number }} has a format issue as it does not follow the Conventional Commits format.
+
+            Please update your commit message to follow the conventional commit format before pushing it to main. 
+            Learn more about Conventional Commits here: https://www.conventionalcommits.org/en/v1.0.0/
+
+      - name: Label PR if Invalid
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              labels: ["invalid-commit"]
+            });
+
+      - name: Close PR if invalid
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              state: "closed"
+            });
