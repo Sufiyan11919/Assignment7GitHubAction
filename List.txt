@@ -37,4 +37,3 @@ List of items I had to do to make everything work.
 - Had issues with the write permission for workflow, changed it to read and write also added
   permission explicitly to conventional_commit.yml file as well to close PR if invalid commit message.
 
-
