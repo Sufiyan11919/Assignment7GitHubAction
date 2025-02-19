@@ -2,7 +2,7 @@ name: "Nightly Build & DockerHub Deployment"
 
 on:
   schedule:
-    - cron: "0 0 * * *"  
+    - cron: "30 18 * * *"  #10:30 AM PST
   workflow_dispatch:  
 
 jobs:
